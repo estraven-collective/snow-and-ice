@@ -8,7 +8,10 @@ if(interactive()) {
 }
 
 instrument <- 'VIIRS'
-data_id <- 'VNP10A1F.001'
+data_id <- 'VNP10A1F'
+data_version <- '1'
+format <- 'HDF-EOS5'
+time <- '2023-03-10,2023-03-15'
 
 wget_call <- 
   glue::glue(
@@ -40,11 +43,11 @@ curl_call <-
     '--digest ',
     '--dump-header response-header.txt ',
     '"https://n5eil02u.ecs.nsidc.org/egi/request?',
-    'short_name=MOD10CM&',
-    'version=6&',
-    'format=GeoTIFF&',
-    'time=2015-01-01,2015-10-01&',
-    'Coverage=/MOD_CMG_Snow_5km/Snow_Cover_Monthly_CMG"'
+    'short_name={data_id}&',
+    'version={data_version}&',
+    'format={format}&',
+    'time={time}&',
+    'agent=NO"'
   )
 
 system(
