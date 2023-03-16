@@ -1,3 +1,9 @@
+# secrets
+.env
+
+# cookies
+.urs_cookies
+
 # data
 data/**
 
