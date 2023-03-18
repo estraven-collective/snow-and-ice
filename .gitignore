@@ -1,5 +1,6 @@
 # secrets
 .env
+.netrc
 
 # cookies
 .urs_cookies
