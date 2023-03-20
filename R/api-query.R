@@ -79,19 +79,28 @@ id_poll <-
     'https://n5eil02u.ecs.nsidc.org/egi/request/{query_id}'
   )
 
-system(
-  id_poll
-)
+n_try <- 300
 
-# parse the response status ------------------------------------------------
-
-response_status <- system(
-  glue::glue(
-    "grep status {{output_folder}}/{{response_file}} | awk -F '<|>' '{print $3}'",
-    .open = '{{', .close = '}}'
-  ),
-  intern = T
-)
+for(i in 1:n_try) {
+  
+  system(
+    id_poll
+  )
+  
+  response_status <- system(
+    glue::glue(
+      "grep status {{output_folder}}/{{response_file}} | awk -F '<|>' '{print $3}'",
+      .open = '{{', .close = '}}'
+    ),
+    intern = T
+  )
+  
+  if(response_status == 'complete') {
+    break
+  }
+  
+  Sys.sleep(10)
+}
 
 # download zipped output --------------------------------------------------
 
