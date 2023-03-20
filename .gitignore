@@ -1,3 +1,13 @@
+# secrets
+.env
+.netrc
+
+# query output
+query_output/**
+
+# cookies
+.urs_cookies
+
 # data
 data/**
 
