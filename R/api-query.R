@@ -1,14 +1,22 @@
+
+# add functions installed with brew to path -------------------------------
+
 old_path <- Sys.getenv("PATH")
 Sys.setenv(PATH = paste(old_path, "/opt/homebrew/bin:/opt/homebrew/sbin", sep = ":"))
+
+# parameters --------------------------------------------------------------
+
 
 instrument <- 'VIIRS'
 data_id <- 'VNP10A1F'
 data_version <- '1'
 format <- 'HDF-EOS5'
 time <- '2023-03-10T00:00:00,2023-03-15T12:00:00'
-WSEN 
-SW <- '43,6'
-NE <- '48,14'
+W <- 6
+S <- 43
+E <- 14
+N <- 48
+WSEN <- glue::glue('{W},{S},{E},{N}')
 output_folder <- 'query_output'
 request_file <- 'request.xml'
 response_file <- 'response.xml'
@@ -36,8 +44,8 @@ curl_call <-
     'format={format}&',
     'time={time}&',
     'page_size=100&',
-    'bounding_box={SW},{NE}&',
-    'bbox={SW},{NE}',
+    'bounding_box={WSEN}&',
+    'bbox={WSEN}',
     '"'
   )
 
