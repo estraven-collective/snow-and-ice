@@ -4,7 +4,7 @@
 
 In order to download satellite data from NASA Earthdata portal, you will have to [register on their website](https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/earthdata-login) and get a **user id** and a **password**.
 
-Store your user id and your password in a `.netrc`, located file in the root of this repo.
+Store your user id and your password in a `.netrc` file, located in the root of this repo.
 
 ```sh
 echo 'machine urs.earthdata.nasa.gov login <uid> password <password>' >> .netrc
