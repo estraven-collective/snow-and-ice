@@ -82,7 +82,6 @@ id_poll <-
 n_try <- 300
 
 for(i in 1:n_try) {
-  
   system(
     id_poll
   )
@@ -98,8 +97,11 @@ for(i in 1:n_try) {
   if(response_status == 'complete') {
     break
   }
-  
-  Sys.sleep(10)
+  else if(response_status == 'processing') {
+    Sys.sleep(10)
+  } else {
+    stop('response status is: ', response_status)
+  }
 }
 
 # download zipped output --------------------------------------------------
