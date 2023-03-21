@@ -15,7 +15,7 @@ chmod 0600 .netrc
 
 All R packages in this project are versioned with [renv](https://rstudio.github.io/renv/articles/renv.html).
 
-1.  Open the project [bologna-data.Rproj](bologna-data.Rproj) in RStudio.
+1.  Open the project file [snow-and-ice.Rproj](snow-and-ice.Rproj) in RStudio.
 2.  At the R console, run:
 
 ``` r
