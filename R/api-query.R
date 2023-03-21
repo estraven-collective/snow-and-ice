@@ -23,6 +23,8 @@ response_file <- 'response.xml'
 cookie_path <- here::here(output_folder, '.urs_cookies')
 auth_path <- here::here('.netrc')
 output_zip <- here::here(output_folder, 'output.zip')
+data_folder <- 'data'
+output_unzipped <- here::here(data_folder, 'query-output')
 
 # make a request to earthdata ---------------------------------------------
 
@@ -121,3 +123,9 @@ download_out <-
 system(
   download_out
 )
+
+
+# unzip into data folder --------------------------------------------------
+
+unzip(zipfile = output_zip,
+      exdir = output_unzipped)
