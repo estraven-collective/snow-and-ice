@@ -4,12 +4,10 @@
 # library(rhdf5)
 # library(stars)
 
-read_viirs <- function(
+read_viirs_metadata <- function(
     h5_file,
-    crs_guess = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
     h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0'
-    ) {
-  
+) {
   # read metadata
   meta <- 
     rhdf5::h5read(
@@ -35,7 +33,18 @@ read_viirs <- function(
   right <- lower_right[1,2] |> as.numeric()
   low <- lower_right[1,3] |> as.numeric()
   
-  return(c(right, low, left, up))
+  return(c(W = right, S = low, E = left, N = up))
+}
+
+read_viirs <- function(
+    h5_file,
+    crs_guess = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+    h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0'
+    ) {
+  
+  read_viirs_metadata(h5_file = h5_file,
+                      h5_metadata = h5_metadata)
+  
 }
   
 read_viirs(
