@@ -1,17 +1,51 @@
-library(tidyverse)
-library(rnaturalearth)
-library(rnaturalearthdata)
-library(rhdf5)
-library(stars)
+# library(tidyverse)
+# library(rnaturalearth)
+# library(rnaturalearthdata)
+# library(rhdf5)
+# library(stars)
 
-crs_guess <- '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+read_viirs <- function(
+    h5_file,
+    crs_guess = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
+    h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0'
+    ) {
+  
+  # read metadata
+  meta <- 
+    rhdf5::h5read(
+      file = h5_file, 
+      name = h5_metadata) 
+  
+  # parse bounding coordinates from metadata
+  meta_lines <- 
+    stringi::stri_split_lines(meta)[[1]] |>
+    stringr::str_remove_all('\t')
+  
+  upper_left <-
+    meta_lines[stringr::str_detect(meta_lines, 'UpperLeftPointMtrs')] |>
+    stringr::str_split('\\(|,|\\)', simplify = T)
+  
+  left <- upper_left[1,2] |> as.numeric()
+  up <- upper_left[1,3] |> as.numeric()
+  
+  lower_right <-
+    meta_lines[stringr::str_detect(meta_lines, 'LowerRightMtrs')] |>
+    stringr::str_split('\\(|,|\\)', simplify = T)
+  
+  right <- lower_right[1,2] |> as.numeric()
+  low <- lower_right[1,3] |> as.numeric()
+  
+  return(c(up, right, low, left))
+}
+  
+read_viirs(
+  here::here('data/VNP10A1F.A2023071.h18v04.001.2023072094756.h5')
+)
+
 
 h5 <- here::here('data/VNP10A1F.A2023071.h18v04.001.2023072094756.h5')
 
-meta <- 
-  h5read(h5, name = '/HDFEOS INFORMATION/StructMetadata.0') %>% 
-  cat()
-
+  
 
 res_guess <-  units::set_units(370.650173222222, m)
 size_guess <- 3000
