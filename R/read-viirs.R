@@ -1,12 +1,9 @@
-# library(tidyverse)
-# library(rnaturalearth)
-# library(rnaturalearthdata)
-# library(rhdf5)
-# library(stars)
 
 read_viirs_metadata <- function(
     h5_file,
-    h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0'
+    h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0',
+    xdims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/XDim',
+    ydims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/YDim'
 ) {
   # read metadata
   meta <- 
@@ -33,13 +30,33 @@ read_viirs_metadata <- function(
   right <- lower_right[1,2] |> as.numeric()
   low <- lower_right[1,3] |> as.numeric()
   
-  return(c(W = right, S = low, E = left, N = up))
+  
+  WSEN <- c(W = right, S = low, E = left, N = up)
+  
+  # parse resolution
+  browser()
+  x <- 
+    rhdf5::h5read(h5_file, name = xdims)
+  
+  y <- 
+    rhdf5::h5read(h5_file, name = ydims)
+  
+  x_step <- x[2] - x[1]
+  y_step <- y[2] - y[1]
+  
+  return(list(WSEN = WSEN,
+              x = x,
+              y = y,
+              x_step = x_step,
+              y_step = y_step))
 }
 
 read_viirs <- function(
     h5_file,
     crs_guess = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
-    h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0'
+    h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0',
+    xdims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/XDim',
+    ydims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/YDim'
     ) {
   
   read_viirs_metadata(h5_file = h5_file,
