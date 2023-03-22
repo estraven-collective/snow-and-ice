@@ -1,3 +1,4 @@
+# read VIIRS data ---------------------------------------------------------
 
 read_viirs_metadata <- function(
     h5_file,
@@ -34,7 +35,6 @@ read_viirs_metadata <- function(
   WSEN <- c(W = left, S = low, E = right, N = up)
   
   # parse resolution
-  browser()
   x <- 
     rhdf5::h5read(h5_file, name = xdims)
   
