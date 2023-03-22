@@ -31,7 +31,7 @@ read_viirs_metadata <- function(
   low <- lower_right[1,3] |> as.numeric()
   
   
-  WSEN <- c(W = right, S = low, E = left, N = up)
+  WSEN <- c(W = left, S = low, E = right, N = up)
   
   # parse resolution
   browser()
@@ -44,11 +44,35 @@ read_viirs_metadata <- function(
   x_step <- x[2] - x[1]
   y_step <- y[2] - y[1]
   
-  return(list(WSEN = WSEN,
-              x = x,
-              y = y,
-              x_step = x_step,
-              y_step = y_step))
+  # checks
+  tol <- 1
+  stopifnot(
+    dplyr::near(
+      x[1],
+      WSEN['W'],
+      tol = tol),
+    dplyr::near(
+      x[length(x)],
+      x[1]  + x_step * (length(x) - 1),
+      tol = tol),
+    dplyr::near(
+      y[1],
+      WSEN['N'],
+      tol = tol),
+   dplyr::near(
+     y[length(y)],
+     y[1]  + y_step * (length(y) - 1),
+     tol = tol)
+   )
+   
+  
+  return(
+    list(WSEN = WSEN,
+         x = x,
+         y = y,
+         x_step = x_step,
+         y_step = y_step)
+  )
 }
 
 read_viirs <- function(
