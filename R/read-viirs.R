@@ -35,7 +35,7 @@ read_viirs <- function(
   right <- lower_right[1,2] |> as.numeric()
   low <- lower_right[1,3] |> as.numeric()
   
-  return(c(up, right, low, left))
+  return(c(right, low, left, up))
 }
   
 read_viirs(
