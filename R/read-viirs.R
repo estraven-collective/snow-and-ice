@@ -59,12 +59,12 @@ read_viirs_metadata <- function(
       y[1],
       WSEN['N'],
       tol = tol),
-   dplyr::near(
-     y[length(y)],
-     y[1]  + y_step * (length(y) - 1),
-     tol = tol)
-   )
-   
+    dplyr::near(
+      y[length(y)],
+      y[1]  + y_step * (length(y) - 1),
+      tol = tol)
+  )
+  
   
   return(
     list(WSEN = WSEN,
@@ -82,10 +82,22 @@ read_viirs <- function(
     xdims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/XDim',
     ydims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/YDim'
     ) {
-  
-  read_viirs_metadata(h5_file = h5_file,
+  # read metadata
+  meta <- read_viirs_metadata(h5_file = h5_file,
                       h5_metadata = h5_metadata)
   
+  # read data
+  st <- stars::read_stars(h5_file)
+  
+  # add metadata to star
+  attr(st, 'dimensions')$x$offset <- meta$x[1]
+  attr(st, 'dimensions')$y$offset <- meta$y[1]
+  attr(st, 'dimensions')$x$delta <- meta$x_step
+  attr(st, 'dimensions')$y$delta <- meta$y_step
+  sf::st_crs(st) <- crs_guess
+  
+  
+  return(st)
 }
   
 read_viirs(
