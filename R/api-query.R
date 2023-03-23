@@ -11,7 +11,7 @@ instrument <- 'VIIRS'
 data_id <- 'VNP10A1F'
 data_version <- '1'
 format <- 'HDF-EOS5'
-time <- '2023-03-10T00:00:00,2023-03-15T12:00:00'
+time <- '2012-01-20T00:00:00,2023-03-21T12:00:00'
 W <- 6
 S <- 43
 E <- 14
@@ -24,7 +24,7 @@ cookie_path <- here::here(output_folder, '.urs_cookies')
 auth_path <- here::here('.netrc')
 output_zip <- here::here(output_folder, 'output.zip')
 data_folder <- 'data'
-output_unzipped <- here::here(data_folder, 'query-output')
+output_unzipped <- here::here(data_folder, 'query-full-timespan')
 
 # make a request to earthdata ---------------------------------------------
 
@@ -99,11 +99,12 @@ for(i in 1:n_try) {
   if(response_status == 'complete') {
     break
   }
-  else if(response_status == 'processing') {
+  else if(response_status == 'processing' | response_status == 'pending') {
     Sys.sleep(10)
   } else {
     stop('response status is: ', response_status)
   }
+  cat(glue::glue('Tentative: {i}. Request status is: "{response_status}"'))
 }
 
 # download zipped output --------------------------------------------------
