@@ -97,14 +97,17 @@ for(i in 1:n_try) {
   )
   
   if(response_status == 'complete') {
+    cat(glue::glue('Done\n'))
     break
   }
   else if(response_status == 'processing' | response_status == 'pending') {
-    Sys.sleep(10)
+    cat(glue::glue('Tentative: {i}. Request status is: "{response_status}".\n'))
+    cat(glue::glue('Trying again in {wait} seconds...\n'))
+    Sys.sleep(wait)
   } else {
-    stop('response status is: ', response_status)
+    stop('unknown response status: ', response_status)
   }
-  cat(glue::glue('Tentative: {i}. Request status is: "{response_status}"'))
+  
 }
 
 # download zipped output --------------------------------------------------
