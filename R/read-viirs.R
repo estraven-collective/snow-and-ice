@@ -3,8 +3,8 @@
 read_viirs_metadata <- function(
     h5_file,
     h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0',
-    xdims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/XDim',
-    ydims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/YDim'
+    xdims = 'XDim',
+    ydims = 'YDim'
 ) {
   # read metadata
   meta <- 
@@ -35,11 +35,28 @@ read_viirs_metadata <- function(
   WSEN <- c(W = left, S = low, E = right, N = up)
   
   # parse resolution
+  h5_dfs <-
+    rhdf5::h5ls(file = h5_file) |>
+    tidyr::unite('df', c(group, name),
+                 sep = '/', remove = FALSE)
+  
+  x_dims_file <- 
+    h5_dfs |>
+    filter(name == xdims) |>
+    pull(df)
+  
+  y_dims_file <- 
+    h5_dfs |>
+    filter(name == ydims) |>
+    pull(df)
+  
   x <- 
-    rhdf5::h5read(h5_file, name = xdims)
+    rhdf5::h5read(h5_file,
+                  name = x_dims_file)
   
   y <- 
-    rhdf5::h5read(h5_file, name = ydims)
+    rhdf5::h5read(h5_file,
+                  name = y_dims_file)
   
   x_step <- x[2] - x[1]
   y_step <- y[2] - y[1]
@@ -79,8 +96,8 @@ read_viirs <- function(
     h5_file,
     crs_guess = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs',
     h5_metadata = '/HDFEOS INFORMATION/StructMetadata.0',
-    xdims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/XDim',
-    ydims = '/HDFEOS/GRIDS/NPP_Grid_IMG_2D/YDim'
+    xdims = 'XDim',
+    ydims = 'YDim'
     ) {
   # read metadata
   meta <- read_viirs_metadata(h5_file = h5_file,
