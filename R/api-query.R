@@ -11,7 +11,8 @@ fetch_viirs <- function(
     data_id = 'VNP10A1F',
     data_version = '1',
     format = 'HDF-EOS5',
-    time = '2012-01-20T00:00:00,2012-01-30T12:00:00',
+    time = '2012-01-01T00:00:00,2012-12-31T12:00:00',
+    page_size = 1000,
     W = 5,
     S = 43,
     E = 13,
@@ -24,8 +25,10 @@ fetch_viirs <- function(
     output_zip = here::here(output_folder, 'output.zip'),
     data_folder = 'data',
     output_unzipped = here::here(data_folder, 'query-test'),
-    wait = 30
+    wait = 30, # seconds between each call to check if data are ready
+    n_try = 300 # check if data are ready for download n times before giving up 
 ) {
+  browser()
   
   WSEN <- glue::glue('{W},{S},{E},{N}')
   
@@ -48,11 +51,12 @@ fetch_viirs <- function(
       'version={data_version}&',
       'format={format}&',
       'time={time}&',
-      'page_size=100&',
+      'page_size={page_size}&',
       'bounding_box={WSEN}&',
-      'bbox={WSEN}',
+      'bbox={WSEN}&',
       '"'
     )
+  
   
   system(
     curl_call
@@ -83,8 +87,6 @@ fetch_viirs <- function(
       '-o "{output_folder}/{response_file}" ',
       'https://n5eil02u.ecs.nsidc.org/egi/request/{query_id}'
     )
-  
-  n_try <- 300
   
   for(i in 1:n_try) {
     system(
@@ -137,3 +139,5 @@ fetch_viirs <- function(
 }
 
 zpath <- fetch_viirs()
+
+unzip(zpath, exdir = 'data/test-2012')
