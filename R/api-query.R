@@ -29,8 +29,6 @@ fetch_viirs <- function(
     wait = 30, # seconds between each call to check if data are ready
     n_try = 300 # check if data are ready for download n times before giving up 
 ) {
-  browser()
-  
   time <-  glue::glue('{start_date}T00:00:00,{end_date}T12:00:00')
   
   WSEN <- glue::glue('{W},{S},{E},{N}')
