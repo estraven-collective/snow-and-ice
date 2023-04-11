@@ -11,7 +11,8 @@ fetch_viirs <- function(
     data_id = 'VNP10A1F',
     data_version = '1',
     format = 'HDF-EOS5',
-    time = '2012-01-01T00:00:00,2012-12-31T12:00:00',
+    start_date = '2012-01-01', # YYYY-MM-DD
+    end_date = '2012-12-31', # YYYY-MM-DD
     page_size = 1000,
     W = 5,
     S = 43,
@@ -29,6 +30,8 @@ fetch_viirs <- function(
     n_try = 300 # check if data are ready for download n times before giving up 
 ) {
   browser()
+  
+  time <-  glue::glue('{start_date}T00:00:00,{end_date}T12:00:00')
   
   WSEN <- glue::glue('{W},{S},{E},{N}')
   
