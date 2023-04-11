@@ -134,11 +134,7 @@ fetch_viirs <- function(
     download_out
   )
   
-  # unzip into data folder --------------------------------------------------
+  # return path to zipped folder --------------------------------------------
   
   return(output_zip)
 }
-
-zpath <- fetch_viirs()
-
-unzip(zpath, exdir = 'data/test-2012')
