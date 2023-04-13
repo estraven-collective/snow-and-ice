@@ -105,7 +105,7 @@ fetch_viirs <- function(
     )
     
     if(response_status == 'complete') {
-      cat('Done\n')
+      cat('The data are ready, downloading...\n')
       break
     }
     else if(response_status == 'processing' | response_status == 'pending') {
@@ -135,6 +135,8 @@ fetch_viirs <- function(
   system(
     download_out
   )
+  
+  cat('Done.\n')
   
   # return path to zipped folder --------------------------------------------
   
