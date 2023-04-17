@@ -12,24 +12,26 @@ fetch_viirs <- function(
     data_version = '1',
     format = 'HDF-EOS5',
     start_date = '2012-01-01', # YYYY-MM-DD
-    end_date = '2012-12-31', # YYYY-MM-DD
-    page_size = 1000,
+    end_date = '2023-12-31', # YYYY-MM-DD
+    page_size = 1000, # what's the max page size? (max number of picture downloaded)
     W = 5,
     S = 43,
     E = 13,
     N = 48,
     output_folder = 'query_output',
-    request_file = 'request.xml',
-    response_file = 'response.xml',
-    cookie_path = here::here(output_folder, '.urs_cookies'),
-    auth_path = here::here('.netrc'),
-    output_zip = here::here(output_folder, 'output.zip'),
+    request_file = 'request.xml', # path relative to output_folder
+    response_file = 'response.xml', # path relative to output_folder
+    cookie_path =  '.urs_cookies', # path relative to output_folder
+    auth_path = '.netrc', # path relative to project root
+    output_zip = 'output.zip', # path relative to output_folder
     data_folder = 'data',
-    output_unzipped = here::here(data_folder, 'query-test'),
     wait = 30, # seconds between each call to check if data are ready
     n_try = 300 # check if data are ready for download n times before giving up 
 ) {
-  time <-  glue::glue('{start_date}T00:00:00,{end_date}T12:00:00')
+  time <-  glue::glue('{start_date}T00:00:00,{end_date}T23:59:59')
+  cookie_path <- here::here(output_folder, cookie_path)
+  output_zip <- here::here(output_folder, output_zip)
+  auth_path <- here::here(auth_path)
   
   WSEN <- glue::glue('{W},{S},{E},{N}')
   
@@ -103,7 +105,7 @@ fetch_viirs <- function(
     )
     
     if(response_status == 'complete') {
-      cat('Done\n')
+      cat('The data are ready, downloading...\n')
       break
     }
     else if(response_status == 'processing' | response_status == 'pending') {
@@ -134,11 +136,9 @@ fetch_viirs <- function(
     download_out
   )
   
-  # unzip into data folder --------------------------------------------------
+  cat('Done.\n')
+  
+  # return path to zipped folder --------------------------------------------
   
   return(output_zip)
 }
-
-zpath <- fetch_viirs()
-
-unzip(zpath, exdir = 'data/test-2012')
