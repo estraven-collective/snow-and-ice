@@ -10,7 +10,7 @@ fetch_viirs <- function(
     instrument = 'VIIRS',
     data_id = 'VNP10A1F',
     data_version = '1',
-    format = 'HDF-EOS5',
+    format = 'HDF-EOS5', # other valueble options: 'GeoTIFF', 'Shapefile'?
     start_date = '2012-01-01', # YYYY-MM-DD
     end_date = '2023-12-31', # YYYY-MM-DD
     page_size = 1000, # what's the max page size? (max number of picture downloaded)

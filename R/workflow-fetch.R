@@ -1,6 +1,7 @@
 library(tidyverse)
 library(here)
 library(glue)
+library(stars)
 
 source(here('R/api-query.R'))
 source(here('R/read-viirs.R'))
@@ -18,6 +19,7 @@ years %>%
     ~fetch_viirs(
       start_date = glue('{.}-01-01'),
       end_date = glue('{.}-12-31'),
+      format = 'GeoTIFF',
       output_folder = zipped_output,
       request_file = glue('{.}-request.xml'),
       response_file = glue('{.}-response.xml'),
@@ -45,12 +47,12 @@ year_from_path <- function(path) {
 downloaded_years <- year_from_path(downloaded_data_path)
 
 # missing years
-cat('year:', setdiff(years, downloaded_years), 'is/are missing\n')
-
+missing_years <- setdiff(years, downloaded_years)
+if(length(missing_years) > 0) cat('year:', missing_years, 'is/are missing\n') 
 
 # unzip all years ---------------------------------------------------------
 
-out_folder_from_year <- function(year) glue('data/{year_from_path(year)}-output')
+out_folder_from_year <- function(year) glue('data/{year_from_path(year)}-output-geotiff')
 
 downloaded_data_path %>% 
   walk(
@@ -70,7 +72,8 @@ all_hf5_paths <-
                full.names = T)
   ) %>% 
   unlist() %>% 
-  .[str_detect(., pattern = '.he5$')] %>% 
+  # .[str_detect(., pattern = '.he5$')] %>%
+  .[str_detect(., pattern = '.tif$')] %>%
   tibble(path = .) %>% 
   separate(path, into = c('pre', 'date'), sep = '_', remove = FALSE) %>% 
   select(-pre) %>% 
