@@ -13,6 +13,7 @@ years <- 2012:2023
 
 zipped_output <- here("query_output")
 zipped_data_tag <- '-output.zip'
+year_data_folder_tag <- 'output-geotiff'
 
 years %>% 
   walk(
@@ -52,7 +53,9 @@ if(length(missing_years) > 0) cat('year:', missing_years, 'is/are missing\n')
 
 # unzip all years ---------------------------------------------------------
 
-out_folder_from_year <- function(year) glue('data/{year_from_path(year)}-output-geotiff')
+out_folder_from_year <- function(year) {
+  glue('data/{year_from_path(year)}-{year_data_folder_tag}')
+}
 
 downloaded_data_path %>% 
   walk(
@@ -75,10 +78,11 @@ all_hf5_paths <-
   # .[str_detect(., pattern = '.he5$')] %>%
   .[str_detect(., pattern = '.tif$')] %>%
   tibble(path = .) %>% 
-  separate(path, into = c('pre', 'date'), sep = '_', remove = FALSE) %>% 
+  separate(path, into = c('pre', 'date_string'), sep = '_', remove = FALSE) %>% 
   select(-pre) %>% 
-  mutate(year = date %>% str_sub(2, 5),
-         day = date %>% str_sub(6,8))
+  mutate(year = date_string %>% str_sub(2, 5) %>% as.numeric(),
+         yday = date_string %>% str_sub(6,8) %>% as.numeric(),
+         date = as.Date(glue('{year}-01-01')) + yday - 1)
 
 
 
