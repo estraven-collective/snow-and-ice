@@ -78,7 +78,9 @@ all_hf5_paths <-
   # .[str_detect(., pattern = '.he5$')] %>%
   .[str_detect(., pattern = '.tif$')] %>%
   tibble(path = .) %>% 
-  separate(path, into = c('pre', 'date_string'), sep = '_', remove = FALSE) %>% 
+  separate(path, into = c('pre', 'date_string', rep(NA, 7), 'file_type_1', 'file_type_2'),
+           sep = '_', remove = FALSE) %>% 
+  unite(col = 'file_type', file_type_1:file_type_2,  sep = ' ') %>% 
   select(-pre) %>% 
   mutate(year = date_string %>% str_sub(2, 5) %>% as.numeric(),
          yday = date_string %>% str_sub(6,8) %>% as.numeric(),
