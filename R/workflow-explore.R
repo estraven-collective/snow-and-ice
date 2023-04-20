@@ -7,26 +7,19 @@ library(scico)
 
 source(here::here('R/read-viirs.R'))
 
-# st <- read_viirs('data/VNP10A1F.A2023071.h18v04.001.2023072094756.h5')
-st <- 
-  read_viirs(
-    here(
-      'data',
-      '2023-output',
-      '264326604',
-      'VNP10A1F_A2023086_h18v04_001_2023087183605_HEGOUT.he5'
-    )
-  )
+# use custom values from GeoTIFF keys and drop the EPSG code
+Sys.setenv(GTIFF_SRS_SOURCE="GEOKEYS")
+
+st <- read_stars('data/2023-output-geotiff/260463021/VNP10A1F_A2023034_h18v04_001_2023035141341_NPP_Grid_IMG_2D_CGF_NDSI_Snow_Cover_879b1352.tif')
 
 world <- 
   ne_countries(scale = "medium", returnclass = "sf")
-  # st_transform(crs = sf::st_crs(st))
 
-# set all pixels not flagged as snow to 0
-st[[3]][st[[3]] > 100] <- NA
+#set all pixels not flagged as snow (>100) to Missing
+st[[1]][st[[1]] > 100] <- NA
 
 ggplot() +
-  geom_stars(data = st[3],
+  geom_stars(data = st,
              show.legend = F,
              alpha = .6) +
   geom_sf(data = world,
