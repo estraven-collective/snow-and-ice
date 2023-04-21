@@ -42,17 +42,19 @@ ggplot() +
 
 # check all ---------------------------------------------------------------
 
+tif_folders_tag <- 'output-geotiff'
 
-all_hf5_paths <- 
-  downloaded_years %>% 
-  out_folder_from_year() %>% 
-  map(
-    ~list.files(.,
-                recursive = T,
-                full.names = T)
-  ) %>% 
-  unlist() %>% 
+all_tif_paths <- 
+  # downloaded_years %>% 
+  # out_folder_from_year() %>% 
+  # map(
+  #   ~list.files(.,
+  #               recursive = T,
+  #               full.names = T)
+  # ) %>% 
+  # unlist() %>% 
   # .[str_detect(., pattern = '.he5$')] %>%
+  list.files()
   .[str_detect(., pattern = '.tif$')] %>%
   tibble(path = .) %>% 
   separate(path, into = c('pre', 'date_string', rep(NA, 7), 'file_type_1', 'file_type_2'),
@@ -67,8 +69,8 @@ all_hf5_paths <-
 
 # extract snow cover estimate ---------------------------------------------
 
-count_snow <- function(h5_path) {
-  st <- read_viirs(h5_path)
+count_snow <- function(tif_path) {
+  st <- read_viirs(tif_path)
   st[[3]][st[[3]] > 100] <- 0
   return(st[[3]] %>% sum(na.rm = T))
 }
