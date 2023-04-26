@@ -26,7 +26,7 @@ snow %>%
 monthly_snow_res <- 
   snow %>% 
   group_by(year,
-           month = month(date)) %>% 
+           month = month(date, label = T)) %>% 
   summarise(
     across(.cols = starts_with('snow'),
            .fns = ~mean(.,na.rm = T))
@@ -34,12 +34,11 @@ monthly_snow_res <-
 
 monthly_snow_res %>% 
   ggplot() +
-  aes(x = snow_amount_cropped,
-      y = 1) +
-  geom_col(orientation = 'y',
-           fill = '#3366EE') +
-  facet_grid(cols = vars(month),
-             rows = vars(year),
+  aes(x = 1,
+      y = snow_amount_cropped) +
+  geom_col(fill = '#3366EE') +
+  facet_grid(rows = vars(month),
+             cols = vars(year),
              switch = 'y') +
   scale_x_continuous(expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0)) +
@@ -47,6 +46,7 @@ monthly_snow_res %>%
   theme(axis.text = element_blank(),
         axis.ticks = element_blank(),
         axis.title = element_blank(),
+        panel.grid = element_blank(),
         panel.spacing = unit(0, units = 'mm'),
         strip.text.y.left = element_text(angle = 0))
 
