@@ -11,7 +11,14 @@ ita <-
 
 # https://www.eea.europa.eu/en/datahub/datahubitem-view/e64928db-e6c1-4acc-bab0-7722bb50075f
 # Vector Data > Direct Download > GPKG
-basins <- read_sf('data/WaterAccounts_SpatialUnits.gpkg')
+basins <- read_sf('data/WaterAccounts_SpatialUnits.gpkg') 
+
+
+# River Network -- LOOKS BAD
+# https://www.eea.europa.eu/en/datahub/datahubitem-view/a9844d0c-6dfb-4c0c-a693-7d991cc82e6e
+rivers <-
+  read_sf('data/rivers') %>% 
+  filter(SUB_BASIN %>% str_detect('^Po '))
 
 po <- basins %>%
   filter(entityName %>% str_detect('^Po')) %>% 
