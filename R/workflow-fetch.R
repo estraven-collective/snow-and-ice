@@ -21,7 +21,8 @@ Sys.setenv(GTIFF_SRS_SOURCE="GEOKEYS")
 
 # parameters --------------------------------------------------------------
 
-first_day_available <- as.Date('2012-01-19') # first day recorded by VIIRS
+#first_day_available <- as.Date('2012-01-19') # first day recorded by VIIRS
+first_day_available <- as.Date('2023-01-01')
 days <- seq.Date(first_day_available, today(), by = 'day')  
 zipped_output <- here("query_output")
 zipped_data_tag <- '-output.zip'
