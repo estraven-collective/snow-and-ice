@@ -22,3 +22,10 @@ jobs:
         uses: r-lib/actions/setup-renv@v2
         with:
           cache-version: 1
+      - name: Store login credentials
+        shell: bash
+        env:
+          USER_ID: ${{ secrets.EARTHDATA_USER_ID }}
+          PWD: ${{ secrets.EARTHDATA_PWD }}
+        run: |
+          echo 'machine urs.earthdata.nasa.gov login "$env:USER_ID" password "$env:PWD"' >> ~/.netrc
