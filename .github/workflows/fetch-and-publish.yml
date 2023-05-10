@@ -4,7 +4,7 @@ on:
 name: "Fetch and Publish"
 
 jobs:
-  build-deploy:
+  fetch-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -29,3 +29,6 @@ jobs:
           PWD: ${{ secrets.EARTHDATA_PWD }}
         run: |
           echo 'machine urs.earthdata.nasa.gov login "$env:USER_ID" password "$env:PWD"' >> ~/.netrc
+      - name: Get Data
+        shell: bash
+        run: Rscript R/workflow-fetch.R
