@@ -65,6 +65,7 @@ fetch_viirs <- function(
     curl_call
   )
   
+  system('cat query_output/response-header.txt')
   
   # parse the request ID ----------------------------------------------------
   
