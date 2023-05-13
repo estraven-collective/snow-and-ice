@@ -24,7 +24,7 @@ jobs:
           cache-version: 1
       - name: Try download data
         shell: bash
-        env:
+        # env:
           # USER_ID: ${{ secrets.EARTHDATA_USER_ID }}
           # PWD: ${{ secrets.EARTHDATA_PWD }}
         run: |
