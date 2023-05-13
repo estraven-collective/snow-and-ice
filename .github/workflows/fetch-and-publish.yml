@@ -36,7 +36,7 @@ jobs:
             --netrc-file .netrc \
             --dump-header response-header.txt \
             "https://n5eil02u.ecs.nsidc.org/egi/request?short_name=MOD10CM&version=6&format=GeoTIFF&time=2015-01-01,2015-02-01&Coverage=/MOD_CMG_Snow_5km/Snow_Cover_Monthly_CMG"
-      - name: Store login credentials
+      # - name: Store login credentials
       #   shell: bash
       #   env:
       #     USER_ID: ${{ secrets.EARTHDATA_USER_ID }}
