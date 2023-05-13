@@ -28,7 +28,7 @@ jobs:
           USER_ID: ${{ secrets.EARTHDATA_USER_ID }}
           PWD: ${{ secrets.EARTHDATA_PWD }}
         run: |
-          echo 'machine urs.earthdata.nasa.gov login "$env:USER_ID" password "$env:PWD"' >> .netrc
+          echo 'machine urs.earthdata.nasa.gov login $env:USER_ID password $env:PWD' >> .netrc
           curl \
             -b .urs_cookies \
             -c .urs_cookies \
