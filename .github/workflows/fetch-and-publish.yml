@@ -25,10 +25,10 @@ jobs:
       - name: Try download data
         shell: bash
         env:
-          USER_ID: ${{ secrets.EARTHDATA_USER_ID }}
-          PWD: ${{ secrets.EARTHDATA_PWD }}
+          # USER_ID: ${{ secrets.EARTHDATA_USER_ID }}
+          # PWD: ${{ secrets.EARTHDATA_PWD }}
         run: |
-          echo 'machine urs.earthdata.nasa.gov login $env:USER_ID password $env:PWD' >> .netrc
+          echo 'machine urs.earthdata.nasa.gov login ${{ secrets.EARTHDATA_USER_ID }} password ${{ secrets.EARTHDATA_PWD }}' >> .netrc
           curl \
             -b .urs_cookies \
             -c .urs_cookies \
