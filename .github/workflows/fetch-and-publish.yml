@@ -27,6 +27,6 @@ jobs:
         run: |
           echo 'machine urs.earthdata.nasa.gov login ${{ secrets.EARTHDATA_USER_ID }} password ${{ secrets.EARTHDATA_PWD }}' >> .netrc
           cat .netrc
-       - name: Get Data
-         shell: bash
-         run: Rscript R/workflow-fetch.R
+      - name: Get Data
+        shell: bash
+        run: Rscript R/workflow-fetch.R
