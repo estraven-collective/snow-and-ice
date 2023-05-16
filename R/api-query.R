@@ -65,6 +65,7 @@ fetch_viirs <- function(
     curl_call
   )
   
+  system('cat query_output/response-header.txt')
   
   # parse the request ID ----------------------------------------------------
   
@@ -75,6 +76,8 @@ fetch_viirs <- function(
     ),
     intern = T
   )
+  
+  print(query_id)
   
   
   # poll for status ---------------------------------------------------------
@@ -90,6 +93,8 @@ fetch_viirs <- function(
       '-o "{output_folder}/{response_file}" ',
       'https://n5eil02u.ecs.nsidc.org/egi/request/{query_id}'
     )
+  
+  print(id_poll)
   
   for(i in 1:n_try) {
     system(

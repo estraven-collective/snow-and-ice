@@ -4,8 +4,47 @@ on:
 name: "Fetch and Publish"
 
 jobs:
-  build-deploy:
+  fetch-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+      - name: Install System Dependecies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libcurl4-openssl-dev libudunits2-dev
+          sudo apt install libgdal-dev libproj-dev libgeos-dev libcairo2-dev libnetcdf-dev
+      - name: Install R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.2.3'
+      - name: Install R Dependencies
+        uses: r-lib/actions/setup-renv@v2
+        with:
+          cache-version: 1
+      - name: Try download data
+        shell: bash
+        # env:
+          # USER_ID: ${{ secrets.EARTHDATA_USER_ID }}
+          # PWD: ${{ secrets.EARTHDATA_PWD }}
+        run: |
+          echo 'machine urs.earthdata.nasa.gov login ${{ secrets.EARTHDATA_USER_ID }} password ${{ secrets.EARTHDATA_PWD }}' >> .netrc
+          curl \
+            -b .urs_cookies \
+            -c .urs_cookies \
+            -L -O -J \
+            --netrc-file .netrc \
+            --dump-header response-header.txt \
+            "https://n5eil02u.ecs.nsidc.org/egi/request?short_name=MOD10CM&version=6&format=GeoTIFF&time=2015-01-01,2015-02-01&Coverage=/MOD_CMG_Snow_5km/Snow_Cover_Monthly_CMG"
+          cat .netrc
+          cat response-header.txt
+      # - name: Store login credentials
+      #   shell: bash
+      #   env:
+      #     USER_ID: ${{ secrets.EARTHDATA_USER_ID }}
+      #     PWD: ${{ secrets.EARTHDATA_PWD }}
+      #   run: |
+      #     echo 'machine urs.earthdata.nasa.gov login "$env:USER_ID" password "$env:PWD"' >> ~/.netrc
+      # - name: Get Data
+      #   shell: bash
+      #   run: Rscript R/workflow-fetch.R
