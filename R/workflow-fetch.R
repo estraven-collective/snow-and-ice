@@ -105,32 +105,34 @@ years_with_missing_dates %>%
 
 # # unzip all years ---------------------------------------------------------
 # 
-# list.files(
-#   path = zipped_output,
-#   pattern = zipped_data_tag,
-#   full.names = T
-# ) %>% 
-#   walk(
-#     ~unzip(
-#       zipfile = .,
-#       exdir = tif_out_folder,
-#       overwrite = FALSE
-#     )
-#   )
+list.files(
+  path = zipped_output,
+  pattern = zipped_data_tag,
+  full.names = T
+) %>% 
+  walk(
+    ~unzip(
+      zipfile = .,
+      exdir = tif_out_folder,
+      overwrite = FALSE
+    )
+  )
 # 
 # # extract snow and plot cover estimate -------------------------------------
 # 
-# all_tif_paths <- 
-#   get_all_tif_paths(tif_out_folder)
-# 
-# all_snow_paths <- 
-#   all_tif_paths %>% 
-#   filter(file_type == 'CGF NDSI')
-# 
-# all_snow_measured <-  
-#   all_snow_paths %>% 
-#   mutate(snow_amount = map_dbl(path, count_snow))
-# 
+all_tif_paths <- 
+  get_all_tif_paths(tif_out_folder)
+ 
+all_snow_paths <- 
+  all_tif_paths %>% 
+  filter(file_type == 'CGF NDSI')
+ 
+all_snow_measured <-  
+  all_snow_paths %>% 
+  mutate(snow_amount = map_dbl(path, count_snow))
+
+save(all_snow_measured, file = 'data/satellite-snow-cover.Rdata')
+
 # all_snow_measured %>% 
 #   group_by(yday) %>% 
 #   mutate(med_snow = median(snow_amount, na.rm = T)) %>% 
@@ -149,7 +151,7 @@ years_with_missing_dates %>%
 #   ) +
 #   facet_wrap(facets = 'year') +
 #   theme_bw()
-# 
+
 # 
 # # subset po river basin ---------------------------------------------------
 # 

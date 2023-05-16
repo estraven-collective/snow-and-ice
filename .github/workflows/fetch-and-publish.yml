@@ -30,3 +30,8 @@ jobs:
       - name: Get Data
         shell: bash
         run: Rscript R/workflow-fetch.R
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: satellite-snow-cover
+          path: data/satellite-snow-cover.Rdata
