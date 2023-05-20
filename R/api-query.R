@@ -28,6 +28,8 @@ fetch_viirs <- function(
     wait = 30, # seconds between each call to check if data are ready
     n_try = 300 # check if data are ready for download n times before giving up 
 ) {
+  cat('Fetching year:', lubridate::year(start_date), '\n')
+  
   time <-  glue::glue('{start_date}T00:00:00,{end_date}T23:59:59')
   cookie_path <- here::here(output_folder, cookie_path)
   output_zip <- here::here(output_folder, output_zip)
@@ -60,6 +62,7 @@ fetch_viirs <- function(
       '"'
     )
   
+  print(curl_call)
   
   system(
     curl_call
@@ -141,6 +144,7 @@ fetch_viirs <- function(
     download_out
   )
   
+  cat('File seaved in:', output_zip, '\n')
   cat('Done.\n')
   
   # return path to zipped folder --------------------------------------------

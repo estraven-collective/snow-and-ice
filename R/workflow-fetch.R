@@ -28,6 +28,7 @@ zipped_output <- here("query_output")
 zipped_data_tag <- '-output.zip'
 year_data_folder_tag <- 'output-geotiff'
 tif_out_folder <- here('data/tif-out')
+rdata_storage <- here('data/satellite-snow-cover.Rdata')
 
 # helper functions --------------------------------------------------------
 
@@ -70,19 +71,30 @@ count_snow <- function(tif_path) {
   return(st[[1]] %>% sum(na.rm = T))
 }
   
-  # Check that all days have been downloaded --------------------------------
+# Check that all days have been downloaded --------------------------------
   
-all_tif_paths <- 
-  get_all_tif_paths(tif_out_folder)
-  
-all_snow_paths <- 
-  all_tif_paths %>% 
-  filter(file_type == 'CGF NDSI')
+all_dates <- 
+  seq.Date(from = first_day_available, to = Sys.Date(), by = "day")
 
-missing_dates <- 
-  seq.Date(from = first_day_available, to = Sys.Date(), by = "day") %>% 
-  setdiff(all_snow_paths$date) %>% 
-  as_date()
+if(file.exists(rdata_storage)) {
+  load(rdata_storage)
+  
+  missing_dates <- 
+    setdiff(
+      all_dates,
+      all_snow_measured$date
+    ) %>% 
+    as_date()
+} else {
+  missing_dates <- all_dates 
+}
+
+# all_tif_paths <- 
+#   get_all_tif_paths(tif_out_folder)
+#   
+# all_snow_paths <- 
+#   all_tif_paths %>% 
+#   filter(file_type == 'CGF NDSI')
 
 years_with_missing_dates <- 
   missing_dates %>% 
@@ -104,7 +116,7 @@ years_with_missing_dates %>%
     ))
 
 # # unzip all years ---------------------------------------------------------
-# 
+ 
 list.files(
   path = zipped_output,
   pattern = zipped_data_tag,
@@ -117,16 +129,25 @@ list.files(
       overwrite = FALSE
     )
   )
-# 
+ 
 # # extract snow and plot cover estimate -------------------------------------
-# 
+
 all_tif_paths <- 
   get_all_tif_paths(tif_out_folder)
  
 all_snow_paths <- 
   all_tif_paths %>% 
   filter(file_type == 'CGF NDSI')
- 
+
+if(exists(quote(all_snow_measured))) {
+  all_snow_measured <- 
+    all_snow_measured %>% 
+    full_join(all_tif_paths)
+} else {
+  all_snow_measured <- 
+    all_tif_paths
+}
+
 all_snow_measured <-  
   all_snow_paths %>% 
   mutate(snow_amount = map_dbl(path, count_snow))
