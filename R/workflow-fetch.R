@@ -77,10 +77,37 @@ get_all_tif_paths <- function(tif_out_folder) {
   return(all_tif_paths)
 }
 
-count_snow <- function(tif_path) {
-  st <- read_stars(tif_path)
-  st[[1]][st[[1]] > 100] <- NA
-  return(st[[1]] %>% sum(na.rm = T))
+measure_snow <- function(path,
+                         date_string,
+                         file_type,
+                         year,
+                         yday,
+                         date,
+                         snow_img,
+                         snow_amount)
+{
+  if(! class(snow_img) == "stars") {
+    cat('Processing file:', path, '\n')
+    snow_img <- read_stars(path)
+    po <- po %>% st_transform(crs = st_crs(snow_img))
+    snow_img <- snow_img %>% st_crop(po, crop = T)
+    snow_img[[1]][snow_img[[1]] > 100] <- NA
+    snow_amount <- snow_img[[1]] %>% sum(na.rm = T)
+  }
+
+  out <- 
+    tibble(
+      path = path,
+      date_string = date_string,
+      file_type = file_type,
+      year = year,
+      yday = yday,
+      date = date,
+      snow_img = list(snow_img),
+      snow_amount = snow_amount
+    )
+  return(out)
+  # return(st[[1]] %>% sum(na.rm = T))
 }
   
 # Check that all days have been downloaded --------------------------------
@@ -154,17 +181,19 @@ all_snow_paths <-
 if(exists(quote(all_snow_measured))) {
   all_snow_measured <- 
     all_snow_measured %>% 
-    full_join(all_tif_paths)
+    full_join(all_snow_paths)
 } else {
   all_snow_measured <- 
-    all_tif_paths
+    all_snow_paths %>% 
+    mutate(snow_img = list(NA),
+           snow_amount = NA)
 }
 
 all_snow_measured <-  
-  all_snow_paths %>% 
-  mutate(snow_amount = map_dbl(path, count_snow))
+  all_snow_measured %>% 
+  pmap_dfr(measure_snow)
 
-save(all_snow_measured, file = 'data/satellite-snow-cover.Rdata')
+save(all_snow_measured, file = rdata_storage)
 
 # all_snow_measured %>% 
 #   group_by(yday) %>% 
