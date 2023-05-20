@@ -30,6 +30,18 @@ year_data_folder_tag <- 'output-geotiff'
 tif_out_folder <- here('data/tif-out')
 rdata_storage <- here('data/satellite-snow-cover.Rdata')
 
+
+# po river basin ----------------------------------------------------------
+
+# https://www.eea.europa.eu/en/datahub/datahubitem-view/e64928db-e6c1-4acc-bab0-7722bb50075f
+# Vector Data > Direct Download > GPKG
+basins <-
+  read_sf('data/WaterAccounts_SpatialUnits.gpkg') 
+
+po <-
+  basins %>%
+  filter(entityName %>% str_detect('^Po')) 
+
 # helper functions --------------------------------------------------------
 
 out_folder_from_year <- function(year) {
