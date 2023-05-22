@@ -6,6 +6,7 @@ library(lubridate)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(scico)
+library(googledrive)
 
 theme_set(
   theme_minimal() +
@@ -19,6 +20,13 @@ source(here('R/read-viirs.R'))
 # use custom values from GeoTIFF keys and drop the EPSG code
 Sys.setenv(GTIFF_SRS_SOURCE="GEOKEYS")
 
+# authorize google drive
+if(interactive()) {
+  drive_auth(
+    path = here('.secrets/driven-airway-387509-ad76a3b28771.json')
+  )
+}
+
 # parameters --------------------------------------------------------------
 
 first_day_available <- as.Date('2012-01-19') # first day recorded by VIIRS
@@ -27,9 +35,26 @@ zipped_output <- here("query_output")
 zipped_data_tag <- '-output.zip'
 year_data_folder_tag <- 'output-geotiff'
 tif_out_folder <- here('data/tif-out')
-rdata_storage <- here('data/satellite-snow-cover.Rdata')
+rdata_name <- 'satellite-snow-cover.Rdata'
+rdata_storage <- here('data', rdata_name)
+drive_folder <- as_id('13boyabHCvZaUWxO6CtKT3NCglpy7X5d_')
 
 
+
+# check if data are available on drive ------------------------------------
+
+drive_folder_content <- 
+  drive_ls(drive_folder)
+
+drive_data_id <- 
+  drive_folder_content %>% 
+  filter(name == rdata_name) %>% 
+  pull(id)
+  
+if(length(drive_data_id) == 1) {
+  drive_download(file = drive_data_id, overwrite = T, path = rdata_storage)
+}
+  
 # po river basin ----------------------------------------------------------
 
 # https://www.eea.europa.eu/en/datahub/datahubitem-view/e64928db-e6c1-4acc-bab0-7722bb50075f
@@ -193,6 +218,13 @@ all_snow_measured <-
   pmap_dfr(measure_snow)
 
 save(all_snow_measured, file = rdata_storage)
+
+
+# upload data to google drive ---------------------------------------------
+
+drive_upload(media = rdata_storage,
+             path = drive_folder,
+             overwrite = T)
 
 # all_snow_measured %>% 
 #   group_by(yday) %>% 

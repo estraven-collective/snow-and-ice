@@ -22,11 +22,10 @@ jobs:
         uses: r-lib/actions/setup-renv@v2
         with:
           cache-version: 1
-      - name: Get data from prev run
-        uses: actions/download-artifact@v3
+      - name: authenticate to Google cloud
+        uses: google-github-actions/auth@v0
         with:
-          name: satellite-snow-cover
-          path: data/satellite-snow-cover.Rdata
+          credentials_json: ${{ secrets.GOOGLE_DRIVE_KEY }}
       - name: Try download data
         shell: bash
         run: |
@@ -35,8 +34,4 @@ jobs:
       - name: Get Data
         shell: bash
         run: Rscript R/workflow-fetch.R
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: satellite-snow-cover
-          path: data/satellite-snow-cover.Rdata
+

@@ -1,6 +1,7 @@
 # secrets
 .env
 .netrc
+.secrets
 
 # query output
 query_output/**
