@@ -46,13 +46,18 @@ drive_folder <- as_id('13boyabHCvZaUWxO6CtKT3NCglpy7X5d_')
 drive_folder_content <- 
   drive_ls(drive_folder)
 
+print(drive_folder_content)
+
 drive_data_id <- 
   drive_folder_content %>% 
   filter(name == rdata_name) %>% 
   pull(id)
   
 if(length(drive_data_id) == 1) {
+  cat('Downloading data from Google Drive:', drive_data_id, '\n')
   drive_download(file = drive_data_id, overwrite = T, path = rdata_storage)
+} else {
+  cat('No data found on Google Drive\n')
 }
   
 # po river basin ----------------------------------------------------------
@@ -170,6 +175,8 @@ years_with_missing_dates <-
   unique()
 
 # try fetch again years with missing dates  -------------------------------
+
+cat('Downloading missing data for years:', years_with_missing_dates, '\n')
 
 years_with_missing_dates %>% 
   walk(
