@@ -101,7 +101,7 @@ get_all_tif_paths <- function(tif_out_folder) {
   return(all_tif_paths)
 }
 
-measure_snow <- function(path,
+measure_snow_sunday <- function(path,
                          date_string,
                          file_type,
                          year,
@@ -112,11 +112,16 @@ measure_snow <- function(path,
 {
   if(! class(snow_img) == "stars") {
     cat('Processing file:', path, '\n')
+    if(wday(date) == 1) {
     snow_img <- read_stars(path)
     po <- po %>% st_transform(crs = st_crs(snow_img))
     snow_img <- snow_img %>% st_crop(po, crop = T)
     snow_img[[1]][snow_img[[1]] > 100] <- NA
     snow_amount <- snow_img[[1]] %>% sum(na.rm = T)
+    } else {
+      snow_img <- NA
+      snow_amount <- NA
+    }
   }
 
   out <- 
@@ -215,7 +220,7 @@ if(exists(quote(all_snow_measured))) {
 
 all_snow_measured <-  
   all_snow_measured %>% 
-  pmap_dfr(measure_snow)
+  pmap_dfr(measure_snow_sunday)
 
 save(all_snow_measured, file = rdata_storage)
 
