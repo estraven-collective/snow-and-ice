@@ -11,6 +11,14 @@ query_output/**
 
 # data
 data/**
+**.org/**
+**.zip
+**.xml
+**.Rdata
+
+# http requests
+request
+response-header.txt
 
 # secrets
 .env
