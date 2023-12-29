@@ -43,8 +43,11 @@ ggplot() +
 # check all ---------------------------------------------------------------
 
 tif_folders_tag <- 'output-geotiff'
+pattern <- "\\d{4}-output-geotiff/"
 
-all_tif_paths <- 
+
+all_tif_paths <-
+# all_h5_paths <- 
   # downloaded_years %>% 
   # out_folder_from_year() %>% 
   # map(
@@ -54,8 +57,10 @@ all_tif_paths <-
   # ) %>% 
   # unlist() %>% 
   # .[str_detect(., pattern = '.he5$')] %>%
-  list.files()
+  list.files(path = "data", full.names = T, recursive = T) %>%
+  {grep(pattern, ., value = T)} %>% 
   .[str_detect(., pattern = '.tif$')] %>%
+  # .[str_detect(., pattern = '.he5$')] %>%
   tibble(path = .) %>% 
   separate(path, into = c('pre', 'date_string', rep(NA, 7), 'file_type_1', 'file_type_2'),
            sep = '_', remove = FALSE) %>% 
@@ -66,41 +71,63 @@ all_tif_paths <-
          date = as.Date(glue('{year}-01-01')) + yday - 1)
 
 
+# extract tidy df -----------------------------------------------
+
+coords <- 
+  st %>% 
+  st_coordinates() %>% 
+  as_tibble() %>% 
+  mutate(snow = st$VNP10A1F_A2023108_h18v04_001_2023109195420_NPP_Grid_IMG_2D_CGF_NDSI_Snow_Cover_6230d321.tif %>% as.vector()) %>% 
+  filter(snow > 0) %>% 
+  filter(snow < 100)
+
+coords %>% 
+  ggplot()+
+  aes(x = snow) +
+  geom_histogram()
+
+coords %>% 
+  ggplot() +
+  aes(x = x,
+      y = y,
+      fill = snow) +
+  geom_tile() +
+  coord_cartesian()
 
 # extract snow cover estimate ---------------------------------------------
-
-count_snow <- function(tif_path) {
-  st <- read_viirs(tif_path)
-  st[[3]][st[[3]] > 100] <- 0
-  return(st[[3]] %>% sum(na.rm = T))
-}
-
-h5_files_loaded <-  
-  all_hf5_paths %>% 
-  mutate(snow_amount = map_dbl(path, count_snow))
+# 
+# count_snow <- function(tif_path) {
+#   st <- read_viirs(tif_path)
+#   st[[3]][st[[3]] > 100] <- 0
+#   return(st[[3]] %>% sum(na.rm = T))
+# }
+# 
+# tiff_files_loaded <-  
+#   all_tif_paths %>% 
+#   mutate(snow_amount = map_dbl(path, count_snow))
 
 # plot snow estimate ------------------------------------------------------
 
 h5_files_loaded %>% 
   write_csv('data/h5_files_loaded.csv')
 
-h5_files_loaded %>% 
-  mutate(day = day %>% as.numeric()) %>% 
-  group_by(day) %>% 
-  mutate(med_snow = median(snow_amount, na.rm = T)) %>% 
-  ungroup() %>% 
-  filter(!(year == 2012 & day < 25)) %>% 
-  ggplot() +
-  aes(x = day) +
-  geom_line(
-    aes(y = med_snow),
-    colour = 'grey70',
-    size = 2
-  ) +
-  geom_line(
-    aes(y = snow_amount),
-    size = 1.2
-  ) +
-  facet_wrap(facets = 'year') +
-  theme_bw()
+# h5_files_loaded %>% 
+#   mutate(day = day %>% as.numeric()) %>% 
+#   group_by(day) %>% 
+#   mutate(med_snow = median(snow_amount, na.rm = T)) %>% 
+#   ungroup() %>% 
+#   filter(!(year == 2012 & day < 25)) %>% 
+#   ggplot() +
+#   aes(x = day) +
+#   geom_line(
+#     aes(y = med_snow),
+#     colour = 'grey70',
+#     size = 2
+#   ) +
+#   geom_line(
+#     aes(y = snow_amount),
+#     size = 1.2
+#   ) +
+#   facet_wrap(facets = 'year') +
+#   theme_bw()
 

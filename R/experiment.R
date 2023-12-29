@@ -115,6 +115,21 @@ save(last_measure, file = 'data/last-measure.Rdata')
 save(last_measure_cropped, file = 'data/last-measure-cropped.Rdata')
 save(last_measure_cropped_down, file = 'data/last-measure-cropped-down.Rdata')
 
+
+# export CSV with snow amount -----------------------------------
+
+snow %>% 
+  select(
+    date,
+    snow_amount_cropped,
+  ) %>% 
+  transmute(
+    date,
+    snow_km2 = snow_amount_cropped*(0.375^2)
+  ) %>% 
+  arrange(date) %>% 
+  write_csv('data/snow-amount.csv')
+
 # 
 # source(here('R/api-query.R'))
 # source(here('R/read-viirs.R'))
