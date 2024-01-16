@@ -5,14 +5,8 @@ library(stars)
 library(lubridate)
 library(rnaturalearth)
 library(rnaturalearthdata)
-library(scico)
+# library(scico)
 library(googledrive)
-
-theme_set(
-  theme_minimal() +
-    theme(panel.grid.major = element_line(linewidth = 2, colour = 'black'),
-          panel.grid.minor = element_line(linewidth = 2, colour = 'black'))
-)
 
 source(here('R/api-query.R'))
 source(here('R/read-viirs.R'))
@@ -30,7 +24,7 @@ if(interactive()) {
 # parameters --------------------------------------------------------------
 
 first_day_available <- as.Date('2012-01-19') # first day recorded by VIIRS
-days <- seq.Date(first_day_available, today(), by = 'day')  
+days <- seq.Date(first_day_available, today(), by = 'week')  
 zipped_output <- here("query_output")
 zipped_data_tag <- '-output.zip'
 year_data_folder_tag <- 'output-geotiff'
@@ -38,8 +32,6 @@ tif_out_folder <- here('data/tif-out')
 rdata_name <- 'satellite-snow-cover.Rdata'
 rdata_storage <- here('data', rdata_name)
 drive_folder <- as_id('13boyabHCvZaUWxO6CtKT3NCglpy7X5d_')
-
-
 
 # check if data are available on drive ------------------------------------
 
@@ -60,17 +52,69 @@ if(length(drive_data_id) == 1) {
   cat('No data found on Google Drive\n')
 }
   
+# Check that all days have been downloaded --------------------------------
+
+if(file.exists(rdata_storage)) {
+  load(rdata_storage)
+  
+  missing_dates <- 
+    setdiff(
+      days,
+      all_snow_measured$date
+    ) %>% 
+    as_date()
+} else {
+  missing_dates <- days 
+}
+
+years_with_missing_dates <- 
+  missing_dates %>% 
+  year() %>% 
+  unique()
+
+# try fetch again years with missing dates  -------------------------------
+
+cat('Downloading missing data for years:', years_with_missing_dates, '\n')
+
+years_with_missing_dates %>% 
+  walk(
+    ~fetch_viirs(
+      start_date = glue('{.}-01-01'),
+      end_date = glue('{.}-12-31'),
+      format = 'GeoTIFF',
+      output_folder = zipped_output,
+      request_file = glue('{.}-request.xml'),
+      response_file = glue('{.}-response.xml'),
+      output_zip = glue('{.}{zipped_data_tag}'),
+    ))
+
+# # unzip all years ---------------------------------------------------------
+
+list.files(
+  path = zipped_output,
+  pattern = zipped_data_tag,
+  full.names = T
+) %>% 
+  walk(
+    ~unzip(
+      zipfile = .,
+      exdir = tif_out_folder,
+      overwrite = FALSE
+    )
+  )
+
 # po river basin ----------------------------------------------------------
 
 # https://www.eea.europa.eu/en/datahub/datahubitem-view/e64928db-e6c1-4acc-bab0-7722bb50075f
 # Vector Data > Direct Download > GPKG
-basins <-
-  read_sf('data/WaterAccounts_SpatialUnits.gpkg') 
 
-po <-
-  basins %>%
-  filter(entityName %>% str_detect('^Po')) 
-
+# basins <-
+#   read_sf('data/WaterAccounts_SpatialUnits.gpkg') 
+# 
+# po <-
+#   basins %>%
+#   filter(entityName %>% str_detect('^Po')) 
+# 
 # helper functions --------------------------------------------------------
 
 out_folder_from_year <- function(year) {
@@ -106,7 +150,7 @@ get_all_tif_paths <- function(tif_out_folder) {
   return(all_tif_paths)
 }
 
-measure_snow_sunday <- function(path,
+measure_snow <- function(path,
                          date_string,
                          file_type,
                          year,
@@ -115,18 +159,19 @@ measure_snow_sunday <- function(path,
                          snow_img,
                          snow_amount)
 {
+  browser()
   if(! class(snow_img) == "stars") {
     cat('Processing file:', path, '\n')
-    if(wday(date) == 1) {
+    # if(wday(date) == 1) {
     snow_img <- read_stars(path)
     po <- po %>% st_transform(crs = st_crs(snow_img))
     snow_img <- snow_img %>% st_crop(po, crop = T)
     snow_img[[1]][snow_img[[1]] > 100] <- NA
     snow_amount <- snow_img[[1]] %>% sum(na.rm = T)
-    } else {
-      snow_img <- NA
-      snow_amount <- NA
-    }
+    # } else {
+    #   snow_img <- NA
+    #   snow_amount <- NA
+    # }
   }
 
   out <- 
@@ -141,69 +186,7 @@ measure_snow_sunday <- function(path,
       snow_amount = snow_amount
     )
   return(out)
-  # return(st[[1]] %>% sum(na.rm = T))
 }
-  
-# Check that all days have been downloaded --------------------------------
-  
-all_dates <- 
-  seq.Date(from = first_day_available, to = Sys.Date(), by = "day")
-
-if(file.exists(rdata_storage)) {
-  load(rdata_storage)
-  
-  missing_dates <- 
-    setdiff(
-      all_dates,
-      all_snow_measured$date
-    ) %>% 
-    as_date()
-} else {
-  missing_dates <- all_dates 
-}
-
-# all_tif_paths <- 
-#   get_all_tif_paths(tif_out_folder)
-#   
-# all_snow_paths <- 
-#   all_tif_paths %>% 
-#   filter(file_type == 'CGF NDSI')
-
-years_with_missing_dates <- 
-  missing_dates %>% 
-  year() %>% 
-  unique()
-
-# try fetch again years with missing dates  -------------------------------
-
-cat('Downloading missing data for years:', years_with_missing_dates, '\n')
-
-years_with_missing_dates %>% 
-  walk(
-    ~fetch_viirs(
-      start_date = glue('{.}-01-01'),
-      end_date = glue('{.}-12-31'),
-      format = 'GeoTIFF',
-      output_folder = zipped_output,
-      request_file = glue('{.}-request.xml'),
-      response_file = glue('{.}-response.xml'),
-      output_zip = glue('{.}{zipped_data_tag}'),
-    ))
-
-# # unzip all years ---------------------------------------------------------
- 
-list.files(
-  path = zipped_output,
-  pattern = zipped_data_tag,
-  full.names = T
-) %>% 
-  walk(
-    ~unzip(
-      zipfile = .,
-      exdir = tif_out_folder,
-      overwrite = FALSE
-    )
-  )
  
 # # extract snow and plot cover estimate -------------------------------------
 
@@ -214,7 +197,10 @@ all_snow_paths <-
   all_tif_paths %>% 
   filter(file_type == 'CGF NDSI')
 
-if(exists(quote(all_snow_measured))) {
+all_snow_paths %>% 
+  pmap_dfr(measure_snow)
+
+# if(exists(quote(all_snow_measured))) {
   all_snow_measured <- 
     all_snow_measured %>% 
     full_join(all_snow_paths)
