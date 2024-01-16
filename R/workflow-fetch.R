@@ -9,7 +9,7 @@ library(rnaturalearthdata)
 library(googledrive)
 
 source(here('R/api-query.R'))
-source(here('R/read-viirs.R'))
+# source(here('R/read-viirs.R'))
 
 # use custom values from GeoTIFF keys and drop the EPSG code
 Sys.setenv(GTIFF_SRS_SOURCE="GEOKEYS")
@@ -57,6 +57,10 @@ if(length(drive_data_id) == 1) {
 if(file.exists(rdata_storage)) {
   load(rdata_storage)
   
+  all_snow_measured <- 
+    all_snow_measured %>% 
+    filter(date %in% days)
+  
   missing_dates <- 
     setdiff(
       days,
@@ -99,7 +103,7 @@ list.files(
     ~unzip(
       zipfile = .,
       exdir = tif_out_folder,
-      overwrite = FALSE
+      overwrite = TRUE
     )
   )
 
@@ -159,13 +163,12 @@ measure_snow <- function(path,
                          snow_img,
                          snow_amount)
 {
-  browser()
   if(! class(snow_img) == "stars") {
     cat('Processing file:', path, '\n')
     # if(wday(date) == 1) {
     snow_img <- read_stars(path)
-    po <- po %>% st_transform(crs = st_crs(snow_img))
-    snow_img <- snow_img %>% st_crop(po, crop = T)
+    # po <- po %>% st_transform(crs = st_crs(snow_img))
+    # snow_img <- snow_img %>% st_crop(po, crop = T)
     snow_img[[1]][snow_img[[1]] > 100] <- NA
     snow_amount <- snow_img[[1]] %>% sum(na.rm = T)
     # } else {
@@ -195,12 +198,10 @@ all_tif_paths <-
  
 all_snow_paths <- 
   all_tif_paths %>% 
-  filter(file_type == 'CGF NDSI')
+  filter(file_type == 'CGF NDSI') %>% 
+  filter(date %in% days); rm(all_tif_paths)
 
-all_snow_paths %>% 
-  pmap_dfr(measure_snow)
-
-# if(exists(quote(all_snow_measured))) {
+if(exists(quote(all_snow_measured))) {
   all_snow_measured <- 
     all_snow_measured %>% 
     full_join(all_snow_paths)
@@ -213,7 +214,7 @@ all_snow_paths %>%
 
 all_snow_measured <-  
   all_snow_measured %>% 
-  pmap_dfr(measure_snow_sunday)
+  pmap_dfr(measure_snow)
 
 save(all_snow_measured, file = rdata_storage)
 
