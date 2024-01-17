@@ -5,11 +5,9 @@ library(stars)
 library(lubridate)
 library(rnaturalearth)
 library(rnaturalearthdata)
-# library(scico)
 library(googledrive)
 
 source(here('R/api-query.R'))
-# source(here('R/read-viirs.R'))
 
 # use custom values from GeoTIFF keys and drop the EPSG code
 Sys.setenv(GTIFF_SRS_SOURCE="GEOKEYS")
@@ -107,18 +105,6 @@ list.files(
     )
   )
 
-# po river basin ----------------------------------------------------------
-
-# https://www.eea.europa.eu/en/datahub/datahubitem-view/e64928db-e6c1-4acc-bab0-7722bb50075f
-# Vector Data > Direct Download > GPKG
-
-# basins <-
-#   read_sf('data/WaterAccounts_SpatialUnits.gpkg') 
-# 
-# po <-
-#   basins %>%
-#   filter(entityName %>% str_detect('^Po')) 
-# 
 # helper functions --------------------------------------------------------
 
 out_folder_from_year <- function(year) {
@@ -165,7 +151,6 @@ measure_snow <- function(path,
 {
   if(! class(snow_img) == "stars") {
     cat('Processing file:', path, '\n')
-    # if(wday(date) == 1) {
     snow_img <- read_stars(path)
     snow_img <- 
       st_warp(
@@ -173,16 +158,10 @@ measure_snow <- function(path,
         crs = st_crs(snow_img), 
         cellsize = c(5e3, 5e3)
       )
-    # po <- po %>% st_transform(crs = st_crs(snow_img))
-    # snow_img <- snow_img %>% st_crop(po, crop = T)
     snow_img[[1]][snow_img[[1]] > 100] <- NA
     snow_amount <- snow_img[[1]] %>% sum(na.rm = T)
-    # } else {
-    #   snow_img <- NA
-    #   snow_amount <- NA
-    # }
   }
-
+  
   out <- 
     tibble(
       path = path,
