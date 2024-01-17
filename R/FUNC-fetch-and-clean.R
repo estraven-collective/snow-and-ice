@@ -1,9 +1,4 @@
 
-# add functions installed with brew to path -------------------------------
-
-old_path <- Sys.getenv("PATH")
-Sys.setenv(PATH = paste(old_path, "/opt/homebrew/bin:/opt/homebrew/sbin", sep = ":"))
-
 # parameters --------------------------------------------------------------
 
 fetch_viirs <- function(
