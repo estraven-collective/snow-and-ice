@@ -167,6 +167,12 @@ measure_snow <- function(path,
     cat('Processing file:', path, '\n')
     # if(wday(date) == 1) {
     snow_img <- read_stars(path)
+    snow_img <- 
+      st_warp(
+        snow_img, 
+        crs = st_crs(snow_img), 
+        cellsize = c(5e3, 5e3)
+      )
     # po <- po %>% st_transform(crs = st_crs(snow_img))
     # snow_img <- snow_img %>% st_crop(po, crop = T)
     snow_img[[1]][snow_img[[1]] > 100] <- NA
