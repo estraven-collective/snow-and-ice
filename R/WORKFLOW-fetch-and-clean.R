@@ -7,7 +7,9 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(googledrive)
 
-source(here('R/api-query.R'))
+source(
+  here('R/FUNC-fetch-and-clean.R')
+  )
 
 # use custom values from GeoTIFF keys and drop the EPSG code
 Sys.setenv(GTIFF_SRS_SOURCE="GEOKEYS")
